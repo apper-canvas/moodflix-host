@@ -9,6 +9,5 @@ export {
   movieService,
   watchlistService,
   movieNightService,
-  ratingService,
-  delay
+  ratingService
 };
