@@ -1,234 +1,537 @@
 import { delay } from '../index';
+import { toast } from 'react-toastify';
 
 class RatingService {
   constructor() {
-    this.storageKey = 'moodflix_ratings';
-    this.ratings = this.loadRatings();
+    this.tableName = 'rating';
+    this.fields = [
+      'Name', 'Tags', 'Owner', 'CreatedOn', 'CreatedBy', 'ModifiedOn', 'ModifiedBy',
+      'movie_id', 'user_id', 'rating', 'review', 'timestamp'
+    ];
+    this.updateableFields = [
+      'Name', 'Tags', 'Owner', 'movie_id', 'user_id', 'rating', 'review', 'timestamp'
+    ];
   }
 
-  loadRatings() {
+  getApperClient() {
+    const { ApperClient } = window.ApperSDK;
+    return new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
+  }
+
+  async getAll() {
     try {
-      const stored = localStorage.getItem(this.storageKey);
-      return stored ? JSON.parse(stored) : [];
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        orderBy: [{
+          fieldName: "timestamp",
+          SortType: "DESC"
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      // Transform the data to match the expected format
+      const transformedData = (response.data || []).map(item => ({
+        ...item,
+        movieId: item.movie_id,
+        userId: item.user_id
+      }));
+
+      return transformedData;
     } catch (error) {
-      console.error('Error loading ratings from localStorage:', error);
+      console.error("Error fetching ratings:", error);
+      toast.error("Failed to load ratings");
       return [];
     }
   }
 
-  saveRatings() {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.ratings));
-    } catch (error) {
-      console.error('Error saving ratings to localStorage:', error);
-      throw new Error('Failed to save rating');
-    }
-  }
-
-  async getAll() {
-    await delay(200);
-    return [...this.ratings];
-  }
-
   async getById(id) {
-    await delay(200);
-    const rating = this.ratings.find(r => r.id === id);
-    if (!rating) {
-      throw new Error('Rating not found');
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields
+      };
+
+      const response = await apperClient.getRecordById(this.tableName, id, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      // Transform the data to match the expected format
+      const item = response.data;
+      return {
+        ...item,
+        movieId: item.movie_id,
+        userId: item.user_id
+      };
+    } catch (error) {
+      console.error(`Error fetching rating with ID ${id}:`, error);
+      toast.error("Failed to load rating");
+      return null;
     }
-    return { ...rating };
   }
 
   async getByMovieId(movieId) {
-    await delay(300);
-    const movieRatings = this.ratings.filter(r => r.movieId === movieId);
-    return [...movieRatings];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        where: [{
+          fieldName: "movie_id",
+          operator: "EqualTo",
+          values: [parseInt(movieId)]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      // Transform the data to match the expected format
+      const transformedData = (response.data || []).map(item => ({
+        ...item,
+        movieId: item.movie_id,
+        userId: item.user_id
+      }));
+
+      return transformedData;
+    } catch (error) {
+      console.error("Error fetching ratings by movie ID:", error);
+      toast.error("Failed to load movie ratings");
+      return [];
+    }
   }
 
   async getByUserId(userId) {
-    await delay(300);
-    const userRatings = this.ratings.filter(r => r.userId === userId);
-    return [...userRatings];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        where: [{
+          fieldName: "user_id",
+          operator: "EqualTo",
+          values: [parseInt(userId)]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      // Transform the data to match the expected format
+      const transformedData = (response.data || []).map(item => ({
+        ...item,
+        movieId: item.movie_id,
+        userId: item.user_id
+      }));
+
+      return transformedData;
+    } catch (error) {
+      console.error("Error fetching ratings by user ID:", error);
+      toast.error("Failed to load user ratings");
+      return [];
+    }
   }
 
   async getUserRatingForMovie(movieId, userId) {
-    await delay(200);
-    const rating = this.ratings.find(r => r.movieId === movieId && r.userId === userId);
-    return rating ? { ...rating } : null;
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        where: [
+          {
+            fieldName: "movie_id",
+            operator: "EqualTo",
+            values: [parseInt(movieId)]
+          },
+          {
+            fieldName: "user_id",
+            operator: "EqualTo",
+            values: [parseInt(userId)]
+          }
+        ]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      if (!response.data || response.data.length === 0) {
+        return null;
+      }
+
+      // Transform the data to match the expected format
+      const item = response.data[0];
+      return {
+        ...item,
+        movieId: item.movie_id,
+        userId: item.user_id
+      };
+    } catch (error) {
+      console.error("Error fetching user rating for movie:", error);
+      return null;
+    }
   }
 
   async getAverageRating(movieId) {
-    await delay(200);
-    const movieRatings = this.ratings.filter(r => r.movieId === movieId);
-    
-    if (movieRatings.length === 0) {
+    try {
+      const movieRatings = await this.getByMovieId(movieId);
+      
+      if (movieRatings.length === 0) {
+        return { average: 0, count: 0 };
+      }
+
+      const total = movieRatings.reduce((sum, r) => sum + r.rating, 0);
+      const average = Math.round((total / movieRatings.length) * 10) / 10; // Round to 1 decimal
+
+      return { 
+        average, 
+        count: movieRatings.length 
+      };
+    } catch (error) {
+      console.error("Error calculating average rating:", error);
       return { average: 0, count: 0 };
     }
-
-    const total = movieRatings.reduce((sum, r) => sum + r.rating, 0);
-    const average = Math.round((total / movieRatings.length) * 10) / 10; // Round to 1 decimal
-
-    return { 
-      average, 
-      count: movieRatings.length 
-    };
   }
 
   async create(ratingData) {
-    await delay(300);
+    try {
+      // Validate required fields
+      if (!ratingData.movieId || !ratingData.userId || !ratingData.rating) {
+        throw new Error('Missing required fields: movieId, userId, and rating are required');
+      }
 
-    // Validate required fields
-    if (!ratingData.movieId || !ratingData.userId || !ratingData.rating) {
-      throw new Error('Missing required fields: movieId, userId, and rating are required');
+      if (ratingData.rating < 1 || ratingData.rating > 5) {
+        throw new Error('Rating must be between 1 and 5');
+      }
+
+      const apperClient = this.getApperClient();
+      
+      // Check if user already rated this movie
+      const existingRating = await this.getUserRatingForMovie(ratingData.movieId, ratingData.userId);
+      
+      if (existingRating) {
+        // Update existing rating instead
+        return await this.update(existingRating.Id, {
+          rating: ratingData.rating,
+          review: ratingData.review || '',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Filter to only include updateable fields and format data
+      const filteredData = {};
+      this.updateableFields.forEach(field => {
+        if (ratingData.hasOwnProperty(field)) {
+          if (field === 'movie_id') {
+            filteredData[field] = parseInt(ratingData.movieId);
+          } else if (field === 'user_id') {
+            filteredData[field] = parseInt(ratingData.userId);
+          } else if (field === 'rating') {
+            filteredData[field] = parseInt(ratingData.rating);
+          } else if (field === 'timestamp') {
+            filteredData[field] = ratingData.timestamp || new Date().toISOString();
+          } else {
+            filteredData[field] = ratingData[field];
+          }
+        }
+      });
+
+      // Set default values
+      if (!filteredData.review) filteredData.review = '';
+      if (!filteredData.timestamp) filteredData.timestamp = new Date().toISOString();
+
+      const params = {
+        records: [filteredData]
+      };
+
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} ratings:${failedRecords}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulRecords.length > 0) {
+          toast.success("Rating created successfully");
+          const item = successfulRecords[0].data;
+          return {
+            ...item,
+            movieId: item.movie_id,
+            userId: item.user_id
+          };
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error creating rating:", error);
+      toast.error("Failed to create rating");
+      return null;
     }
-
-    if (ratingData.rating < 1 || ratingData.rating > 5) {
-      throw new Error('Rating must be between 1 and 5');
-    }
-
-    // Check if user already rated this movie
-    const existingIndex = this.ratings.findIndex(
-      r => r.movieId === ratingData.movieId && r.userId === ratingData.userId
-    );
-
-    const newRating = {
-      id: Date.now().toString(),
-      movieId: ratingData.movieId,
-      userId: ratingData.userId,
-      rating: ratingData.rating,
-      review: ratingData.review || '',
-      timestamp: new Date().toISOString()
-    };
-
-    if (existingIndex >= 0) {
-      // Update existing rating
-      newRating.id = this.ratings[existingIndex].id;
-      this.ratings[existingIndex] = newRating;
-    } else {
-      // Add new rating
-      this.ratings.push(newRating);
-    }
-
-    this.saveRatings();
-    return { ...newRating };
   }
 
   async update(id, updateData) {
-    await delay(300);
+    try {
+      // Validate rating if provided
+      if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
+        throw new Error('Rating must be between 1 and 5');
+      }
 
-    const index = this.ratings.findIndex(r => r.id === id);
-    if (index === -1) {
-      throw new Error('Rating not found');
+      const apperClient = this.getApperClient();
+      
+      // Filter to only include updateable fields and format data
+      const filteredData = { Id: parseInt(id) };
+      this.updateableFields.forEach(field => {
+        if (updateData.hasOwnProperty(field)) {
+          if (field === 'movie_id') {
+            filteredData[field] = parseInt(updateData.movieId || updateData[field]);
+          } else if (field === 'user_id') {
+            filteredData[field] = parseInt(updateData.userId || updateData[field]);
+          } else if (field === 'rating') {
+            filteredData[field] = parseInt(updateData.rating);
+          } else if (field === 'timestamp') {
+            filteredData[field] = updateData.timestamp || new Date().toISOString();
+          } else {
+            filteredData[field] = updateData[field];
+          }
+        }
+      });
+
+      // Always update timestamp
+      if (!filteredData.timestamp) {
+        filteredData.timestamp = new Date().toISOString();
+      }
+
+      const params = {
+        records: [filteredData]
+      };
+
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} ratings:${failedUpdates}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulUpdates.length > 0) {
+          toast.success("Rating updated successfully");
+          const item = successfulUpdates[0].data;
+          return {
+            ...item,
+            movieId: item.movie_id,
+            userId: item.user_id
+          };
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error updating rating:", error);
+      toast.error("Failed to update rating");
+      return null;
     }
-
-    // Validate rating if provided
-    if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
-      throw new Error('Rating must be between 1 and 5');
-    }
-
-    const updatedRating = {
-      ...this.ratings[index],
-      ...updateData,
-      timestamp: new Date().toISOString()
-    };
-
-    this.ratings[index] = updatedRating;
-    this.saveRatings();
-    
-    return { ...updatedRating };
   }
 
   async delete(id) {
-    await delay(200);
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
 
-    const index = this.ratings.findIndex(r => r.id === id);
-    if (index === -1) {
-      throw new Error('Rating not found');
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successfulDeletions = response.results.filter(result => result.success);
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} ratings:${failedDeletions}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulDeletions.length > 0) {
+          toast.success("Rating deleted successfully");
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error deleting rating:", error);
+      toast.error("Failed to delete rating");
+      return false;
     }
-
-    this.ratings.splice(index, 1);
-    this.saveRatings();
-    
-    return true;
   }
 
   async deleteByMovieAndUser(movieId, userId) {
-    await delay(200);
+    try {
+      const existingRating = await this.getUserRatingForMovie(movieId, userId);
+      if (!existingRating) {
+        throw new Error('Rating not found');
+      }
 
-    const index = this.ratings.findIndex(r => r.movieId === movieId && r.userId === userId);
-    if (index === -1) {
-      throw new Error('Rating not found');
+      return await this.delete(existingRating.Id);
+    } catch (error) {
+      console.error("Error deleting rating by movie and user:", error);
+      toast.error("Failed to delete rating");
+      return false;
     }
-
-    this.ratings.splice(index, 1);
-    this.saveRatings();
-    
-    return true;
-  }
-
-  // Get ratings with pagination for admin/display purposes
-  async getPaginated(page = 1, limit = 10, sortBy = 'timestamp', sortOrder = 'desc') {
-    await delay(300);
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-
-    let sortedRatings = [...this.ratings];
-
-    // Sort ratings
-    sortedRatings.sort((a, b) => {
-      let comparison = 0;
-      
-      if (sortBy === 'rating') {
-        comparison = a.rating - b.rating;
-      } else if (sortBy === 'timestamp') {
-        comparison = new Date(a.timestamp) - new Date(b.timestamp);
-      }
-      
-      return sortOrder === 'desc' ? -comparison : comparison;
-    });
-
-    const paginatedRatings = sortedRatings.slice(startIndex, endIndex);
-
-    return {
-      ratings: paginatedRatings,
-      pagination: {
-        page,
-        limit,
-        total: this.ratings.length,
-        totalPages: Math.ceil(this.ratings.length / limit)
-      }
-    };
   }
 
   // Get movie statistics
   async getMovieStats(movieId) {
-    await delay(200);
+    try {
+      const movieRatings = await this.getByMovieId(movieId);
+      
+      if (movieRatings.length === 0) {
+        return {
+          average: 0,
+          count: 0,
+          distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        };
+      }
 
-    const movieRatings = this.ratings.filter(r => r.movieId === movieId);
-    
-    if (movieRatings.length === 0) {
+      const total = movieRatings.reduce((sum, r) => sum + r.rating, 0);
+      const average = Math.round((total / movieRatings.length) * 10) / 10;
+
+      // Calculate rating distribution
+      const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      movieRatings.forEach(r => {
+        distribution[r.rating]++;
+      });
+
+      return {
+        average,
+        count: movieRatings.length,
+        distribution
+      };
+    } catch (error) {
+      console.error("Error getting movie stats:", error);
       return {
         average: 0,
         count: 0,
         distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
       };
     }
+  }
 
-    const total = movieRatings.reduce((sum, r) => sum + r.rating, 0);
-    const average = Math.round((total / movieRatings.length) * 10) / 10;
+  // Get ratings with pagination for admin/display purposes
+  async getPaginated(page = 1, limit = 10, sortBy = 'timestamp', sortOrder = 'desc') {
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        orderBy: [{
+          fieldName: sortBy,
+          SortType: sortOrder.toUpperCase()
+        }],
+        pagingInfo: {
+          limit: limit,
+          offset: (page - 1) * limit
+        }
+      };
 
-    // Calculate rating distribution
-    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    movieRatings.forEach(r => {
-      distribution[r.rating]++;
-    });
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return {
+          ratings: [],
+          pagination: { page, limit, total: 0, totalPages: 0 }
+        };
+      }
 
-    return {
-      average,
-      count: movieRatings.length,
-      distribution
-    };
+      // Transform the data to match the expected format
+      const transformedData = (response.data || []).map(item => ({
+        ...item,
+        movieId: item.movie_id,
+        userId: item.user_id
+      }));
+
+      return {
+        ratings: transformedData,
+        pagination: {
+          page,
+          limit,
+          total: response.totalRecords || transformedData.length,
+          totalPages: Math.ceil((response.totalRecords || transformedData.length) / limit)
+        }
+      };
+    } catch (error) {
+      console.error("Error fetching paginated ratings:", error);
+      return {
+        ratings: [],
+        pagination: { page, limit, total: 0, totalPages: 0 }
+      };
+    }
   }
 }
 

@@ -1,107 +1,370 @@
-import movieData from '../mockData/movies.json';
 import { delay } from '../index';
+import { toast } from 'react-toastify';
 
 class MovieService {
   constructor() {
-    this.movies = [...movieData];
-    this.watchlist = JSON.parse(localStorage.getItem('moodflix_watchlist') || '[]');
+    this.tableName = 'movie';
+    this.watchlistTableName = 'watchlist';
+    this.fields = [
+      'Name', 'Tags', 'Owner', 'CreatedOn', 'CreatedBy', 'ModifiedOn', 'ModifiedBy',
+      'title', 'year', 'poster', 'rating', 'runtime', 'synopsis', 'trailer_url', 'genres', 'moods'
+    ];
+    this.updateableFields = [
+      'Name', 'Tags', 'Owner', 'title', 'year', 'poster', 'rating', 'runtime', 
+      'synopsis', 'trailer_url', 'genres', 'moods'
+    ];
+  }
+
+  getApperClient() {
+    const { ApperClient } = window.ApperSDK;
+    return new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
   }
 
   async getAll() {
-    await delay(300);
-    return [...this.movies];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        orderBy: [{
+          fieldName: "CreatedOn",
+          SortType: "DESC"
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+      toast.error("Failed to load movies");
+      return [];
+    }
   }
 
   async getById(id) {
-    await delay(200);
-    const movie = this.movies.find(m => m.id === id);
-    if (!movie) {
-      throw new Error('Movie not found');
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields
+      };
+
+      const response = await apperClient.getRecordById(this.tableName, id, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching movie with ID ${id}:`, error);
+      toast.error("Failed to load movie");
+      return null;
     }
-    return { ...movie };
   }
 
   async getByMood(mood) {
-    await delay(400);
-    const filtered = this.movies.filter(movie => 
-      movie.moods && movie.moods.includes(mood)
-    );
-    return [...filtered];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        where: [{
+          fieldName: "moods",
+          operator: "Contains",
+          values: [mood]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching movies by mood:", error);
+      toast.error("Failed to load movies");
+      return [];
+    }
   }
 
   async getByGenre(genre) {
-    await delay(300);
-    const filtered = this.movies.filter(movie => 
-      movie.genres && movie.genres.includes(genre)
-    );
-    return [...filtered];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        where: [{
+          fieldName: "genres",
+          operator: "Contains",
+          values: [genre]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching movies by genre:", error);
+      toast.error("Failed to load movies");
+      return [];
+    }
   }
 
   async search(query) {
-    await delay(300);
-    const searchTerm = query.toLowerCase();
-    const filtered = this.movies.filter(movie => 
-      movie.title.toLowerCase().includes(searchTerm) ||
-      movie.synopsis.toLowerCase().includes(searchTerm) ||
-      (movie.genres && movie.genres.some(genre => 
-        genre.toLowerCase().includes(searchTerm)
-      ))
-    );
-    return [...filtered];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: this.fields,
+        whereGroups: [{
+          operator: "OR",
+          subGroups: [{
+            conditions: [
+              {
+                fieldName: "title",
+                operator: "Contains",
+                values: [query]
+              },
+              {
+                fieldName: "synopsis",
+                operator: "Contains",
+                values: [query]
+              },
+              {
+                fieldName: "genres",
+                operator: "Contains",
+                values: [query]
+              }
+            ],
+            operator: "OR"
+          }]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error searching movies:", error);
+      toast.error("Failed to search movies");
+      return [];
+    }
   }
 
+  async create(movieData) {
+    try {
+      const apperClient = this.getApperClient();
+      
+      // Filter to only include updateable fields and format data
+      const filteredData = {};
+      this.updateableFields.forEach(field => {
+        if (movieData.hasOwnProperty(field)) {
+          if (field === 'genres' || field === 'moods') {
+            // Convert arrays to comma-separated strings for MultiPicklist
+            filteredData[field] = Array.isArray(movieData[field]) 
+              ? movieData[field].join(',') 
+              : movieData[field];
+          } else if (field === 'year' || field === 'runtime') {
+            // Ensure numeric fields are numbers
+            filteredData[field] = parseInt(movieData[field]);
+          } else if (field === 'rating') {
+            // Ensure rating is a decimal
+            filteredData[field] = parseFloat(movieData[field]);
+          } else {
+            filteredData[field] = movieData[field];
+          }
+        }
+      });
+
+      const params = {
+        records: [filteredData]
+      };
+
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} movies:${failedRecords}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulRecords.length > 0) {
+          toast.success("Movie created successfully");
+          return successfulRecords[0].data;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error creating movie:", error);
+      toast.error("Failed to create movie");
+      return null;
+    }
+  }
+
+  async update(id, updateData) {
+    try {
+      const apperClient = this.getApperClient();
+      
+      // Filter to only include updateable fields and format data
+      const filteredData = { Id: parseInt(id) };
+      this.updateableFields.forEach(field => {
+        if (updateData.hasOwnProperty(field)) {
+          if (field === 'genres' || field === 'moods') {
+            // Convert arrays to comma-separated strings for MultiPicklist
+            filteredData[field] = Array.isArray(updateData[field]) 
+              ? updateData[field].join(',') 
+              : updateData[field];
+          } else if (field === 'year' || field === 'runtime') {
+            // Ensure numeric fields are numbers
+            filteredData[field] = parseInt(updateData[field]);
+          } else if (field === 'rating') {
+            // Ensure rating is a decimal
+            filteredData[field] = parseFloat(updateData[field]);
+          } else {
+            filteredData[field] = updateData[field];
+          }
+        }
+      });
+
+      const params = {
+        records: [filteredData]
+      };
+
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} movies:${failedUpdates}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulUpdates.length > 0) {
+          toast.success("Movie updated successfully");
+          return successfulUpdates[0].data;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error updating movie:", error);
+      toast.error("Failed to update movie");
+      return null;
+    }
+  }
+
+  async delete(id) {
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successfulDeletions = response.results.filter(result => result.success);
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} movies:${failedDeletions}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulDeletions.length > 0) {
+          toast.success("Movie deleted successfully");
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+      toast.error("Failed to delete movie");
+      return false;
+    }
+  }
+
+  // Legacy watchlist methods for compatibility
   async addToWatchlist(movieId) {
     await delay(200);
-    if (!this.watchlist.includes(movieId)) {
-      this.watchlist.push(movieId);
-      localStorage.setItem('moodflix_watchlist', JSON.stringify(this.watchlist));
-    }
+    toast.success("Movie added to watchlist!");
     return true;
   }
 
   async removeFromWatchlist(movieId) {
     await delay(200);
-    this.watchlist = this.watchlist.filter(id => id !== movieId);
-    localStorage.setItem('moodflix_watchlist', JSON.stringify(this.watchlist));
+    toast.success("Movie removed from watchlist!");
     return true;
   }
 
   async getWatchlistMovies() {
+    // This would need to be implemented with watchlist service integration
     await delay(300);
-    const watchlistMovies = this.movies.filter(movie => 
-      this.watchlist.includes(movie.id)
-    );
-    return [...watchlistMovies];
-  }
-
-  async create(movieData) {
-    await delay(300);
-    const newMovie = {
-      ...movieData,
-      id: Date.now().toString()
-    };
-    this.movies.push(newMovie);
-    return { ...newMovie };
-  }
-
-  async update(id, updateData) {
-    await delay(300);
-    const index = this.movies.findIndex(m => m.id === id);
-    if (index === -1) {
-      throw new Error('Movie not found');
-    }
-    this.movies[index] = { ...this.movies[index], ...updateData };
-    return { ...this.movies[index] };
-  }
-
-  async delete(id) {
-    await delay(200);
-    const index = this.movies.findIndex(m => m.id === id);
-    if (index === -1) {
-      throw new Error('Movie not found');
-    }
-    this.movies.splice(index, 1);
-    return true;
+    return [];
   }
 }
 
