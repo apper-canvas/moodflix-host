@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ApperIcon from '@/components/ApperIcon';
 import PosterImage from '@/components/atoms/PosterImage';
 import Text from '@/components/atoms/Text';
 import InfoDisplay from '@/components/molecules/InfoDisplay';
 import Button from '@/components/atoms/Button';
+import { ratingService } from '@/services';
 
 const MovieCard = ({ movie, onShowDetails, onAddToWatchlist }) => {
+    const [averageRating, setAverageRating] = useState(0);
+    const [ratingCount, setRatingCount] = useState(0);
+
+    useEffect(() => {
+        const loadRating = async () => {
+            try {
+                const stats = await ratingService.getAverageRating(movie.id);
+                setAverageRating(stats.average);
+                setRatingCount(stats.count);
+            } catch (error) {
+                console.error('Error loading rating:', error);
+            }
+        };
+        loadRating();
+    }, [movie.id]);
+
     const handleAddToWatchlist = (e) => {
         e.stopPropagation();
         onAddToWatchlist(movie);
@@ -31,16 +48,23 @@ const MovieCard = ({ movie, onShowDetails, onAddToWatchlist }) => {
             />
 
             {/* Overlay with actions */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute bottom-4 left-4 right-4">
                     <div className="flex items-center justify-between">
-                        <InfoDisplay
-                            iconName="Star"
-                            text={movie.rating}
-                            className="text-yellow-400"
-                            iconClassName="w-4 h-4 fill-current"
-                            textClassName="text-sm font-medium ml-1"
-                        />
+                        <div className="flex items-center space-x-1">
+                            <InfoDisplay
+                                iconName="Star"
+                                text={averageRating > 0 ? averageRating : movie.rating}
+                                className="text-yellow-400"
+                                iconClassName="w-4 h-4 fill-current"
+                                textClassName="text-sm font-medium ml-1"
+                            />
+                            {ratingCount > 0 && (
+                                <Text className="text-xs text-gray-400">
+                                    ({ratingCount})
+                                </Text>
+                            )}
+                        </div>
                         <Text as="span" className="text-xs text-gray-300">
                             {formatRuntime(movie.runtime)}
                         </Text>
@@ -54,7 +78,6 @@ const MovieCard = ({ movie, onShowDetails, onAddToWatchlist }) => {
                     </div>
                 </div>
             </div>
-
             {/* Watchlist indicator (top right) */}
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="p-1 bg-black/50 rounded-full">
