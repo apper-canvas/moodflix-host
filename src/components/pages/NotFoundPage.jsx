@@ -1,8 +1,11 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import ApperIcon from '../components/ApperIcon';
+import ApperIcon from '@/components/ApperIcon';
+import Button from '@/components/atoms/Button';
+import Text from '@/components/atoms/Text';
 
-const NotFound = () => {
+const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -13,11 +16,11 @@ const NotFound = () => {
         className="text-center max-w-md mx-auto"
       >
         <motion.div
-          animate={{ 
+          animate={{
             rotate: [0, 10, -10, 0],
             scale: [1, 1.1, 1]
           }}
-          transition={{ 
+          transition={{
             duration: 2,
             repeat: Infinity,
             repeatDelay: 3
@@ -26,34 +29,32 @@ const NotFound = () => {
         >
           <ApperIcon name="Film" className="w-24 h-24 text-gray-400 mx-auto" />
         </motion.div>
-        
-        <h1 className="text-6xl font-display font-bold text-white mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-white mb-4">Page Not Found</h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">
+
+        <Text as="h1" className="text-6xl font-display font-bold text-white mb-4">404</Text>
+        <Text as="h2" className="text-2xl font-semibold text-white mb-4">Page Not Found</Text>
+        <Text className="text-gray-400 mb-8 leading-relaxed">
           Looks like this page got lost in the cinema. Let's get you back to the main show!
-        </p>
-        
+        </Text>
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            animate={true}
+            className="px-6 py-3 bg-primary text-white hover:bg-primary/90"
           >
             Go Home
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          </Button>
+          <Button
             onClick={() => navigate('/discover')}
-            className="px-6 py-3 bg-surface-800 text-gray-300 rounded-lg hover:bg-surface-700 transition-colors"
+            animate={true}
+            className="px-6 py-3 bg-surface-800 text-gray-300 hover:bg-surface-700"
           >
             Discover Movies
-          </motion.button>
+          </Button>
         </div>
       </motion.div>
     </div>
   );
 };
 
-export default NotFound;
+export default NotFoundPage;

@@ -1,9 +1,9 @@
-import Home from '../pages/Home';
-import Discover from '../pages/Discover';
-import Watchlist from '../pages/Watchlist';
-import MovieNights from '../pages/MovieNights';
-import Search from '../pages/Search';
-import NotFound from '../pages/NotFound';
+import HomePage from '@/components/pages/HomePage';
+import DiscoverPage from '@/components/pages/DiscoverPage';
+import WatchlistPage from '@/components/pages/WatchlistPage';
+import MovieNightsPage from '@/components/pages/MovieNightsPage';
+import SearchPage from '@/components/pages/SearchPage';
+import NotFoundPage from '@/components/pages/NotFoundPage';
 
 export const routes = {
   home: {
@@ -11,35 +11,40 @@ export const routes = {
     label: 'Home',
     path: '/',
     icon: 'Home',
-    component: Home
+icon: 'Home',
+    component: HomePage
   },
   discover: {
     id: 'discover',
     label: 'Discover',
     path: '/discover',
     icon: 'Compass',
-    component: Discover
+icon: 'Compass',
+    component: DiscoverPage
   },
   watchlist: {
     id: 'watchlist',
     label: 'Watchlist',
     path: '/watchlist',
     icon: 'Bookmark',
-    component: Watchlist
+icon: 'Bookmark',
+    component: WatchlistPage
   },
   movieNights: {
     id: 'movieNights',
     label: 'Movie Nights',
     path: '/movie-nights',
     icon: 'Users',
-    component: MovieNights
+icon: 'Users',
+    component: MovieNightsPage
   },
   search: {
     id: 'search',
     label: 'Search',
     path: '/search',
     icon: 'Search',
-    component: Search
+icon: 'Search',
+    component: SearchPage
   }
 };
 
