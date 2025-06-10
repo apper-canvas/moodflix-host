@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1",
+    "title": "The Grand Adventure",
+    "year": 2023,
+    "poster": "https://images.unsplash.com/photo-1489599833768-1bb3ce87e0c8?w=400&h=600&fit=crop",
+    "rating": 8.4,
+    "runtime": 142,
+    "synopsis": "An epic tale of courage and discovery as a young explorer ventures into uncharted territories to find a legendary treasure. Along the way, they encounter breathtaking landscapes, dangerous wildlife, and unexpected allies who teach them the true meaning of adventure.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Adventure", "Action", "Drama"],
+    "moods": ["adventurous", "happy", "nostalgic"]
+  },
+  {
+    "id": "2",
+    "title": "Midnight in Paris Café",
+    "year": 2022,
+    "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop",
+    "rating": 7.8,
+    "runtime": 108,
+    "synopsis": "A charming romantic comedy about two strangers who meet at a cozy Parisian café during a power outage. As they share stories and dreams by candlelight, they discover an unexpected connection that changes both their lives forever.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Romance", "Comedy", "Drama"],
+    "moods": ["romantic", "happy", "nostalgic"]
+  },
+  {
+    "id": "3",
+    "title": "The Shadow Conspiracy",
+    "year": 2023,
+    "poster": "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=600&fit=crop",
+    "rating": 8.1,
+    "runtime": 128,
+    "synopsis": "A psychological thriller that follows a detective who discovers a secret organization manipulating global events. As they dig deeper, they realize they can trust no one and must question everything they thought they knew about reality.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Thriller", "Mystery", "Action"],
+    "moods": ["thriller", "scary"]
+  },
+  {
+    "id": "4",
+    "title": "Comedy Central Station",
+    "year": 2022,
+    "poster": "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop",
+    "rating": 7.2,
+    "runtime": 95,
+    "synopsis": "A hilarious ensemble comedy about the misfit employees of a small-town train station who accidentally become local heroes when they foil a ridiculous bank robbery attempt. Featuring slapstick humor and heartwarming friendships.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Comedy", "Adventure"],
+    "moods": ["funny", "happy"]
+  },
+  {
+    "id": "5",
+    "title": "The Haunting of Willow Manor",
+    "year": 2023,
+    "poster": "https://images.unsplash.com/photo-1520637836862-4d197d17c27a?w=400&h=600&fit=crop",
+    "rating": 7.9,
+    "runtime": 118,
+    "synopsis": "A spine-chilling horror film about a family who inherits an old mansion with a dark secret. As supernatural events escalate, they must uncover the truth about the house's tragic past before it claims them as its next victims.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Horror", "Supernatural", "Thriller"],
+    "moods": ["scary", "thriller"]
+  },
+  {
+    "id": "6",
+    "title": "Melancholy Blues",
+    "year": 2021,
+    "poster": "https://images.unsplash.com/photo-1489599833768-1bb3ce87e0c8?w=400&h=600&fit=crop",
+    "rating": 8.6,
+    "runtime": 134,
+    "synopsis": "A poignant drama about a aging jazz musician reflecting on his life and lost love while preparing for what might be his final performance. A deeply emotional story about regret, redemption, and the power of music to heal old wounds.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Drama", "Music", "Romance"],
+    "moods": ["sad", "nostalgic", "romantic"]
+  },
+  {
+    "id": "7",
+    "title": "Retro Summer",
+    "year": 2022,
+    "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop",
+    "rating": 7.5,
+    "runtime": 102,
+    "synopsis": "A nostalgic coming-of-age story set in the 1980s, following a group of teenagers during one unforgettable summer. Filled with first loves, friendship, and the bittersweet realization that childhood is ending, this film perfectly captures the magic of youth.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Drama", "Comedy", "Romance"],
+    "moods": ["nostalgic", "happy", "romantic"]
+  },
+  {
+    "id": "8",
+    "title": "Digital Nightmare",
+    "year": 2023,
+    "poster": "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=600&fit=crop",
+    "rating": 8.0,
+    "runtime": 115,
+    "synopsis": "A techno-thriller about a programmer who becomes trapped in a virtual reality simulation that's slowly taking over the real world. Racing against time, they must find a way to escape before the digital realm completely replaces reality.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Sci-Fi", "Thriller", "Action"],
+    "moods": ["thriller", "scary"]
+  },
+  {
+    "id": "9",
+    "title": "Love in the Time of Quarantine",
+    "year": 2021,
+    "poster": "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop",
+    "rating": 7.1,
+    "runtime": 89,
+    "synopsis": "A romantic comedy about two neighbors who fall in love through video calls during lockdown. Their relationship blooms through balcony conversations and creative dates, proving that love finds a way even in the most challenging circumstances.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Romance", "Comedy"],
+    "moods": ["romantic", "happy", "funny"]
+  },
+  {
+    "id": "10",
+    "title": "The Last Expedition",
+    "year": 2023,
+    "poster": "https://images.unsplash.com/photo-1520637836862-4d197d17c27a?w=400&h=600&fit=crop",
+    "rating": 8.7,
+    "runtime": 156,
+    "synopsis": "An epic adventure following a team of explorers on a dangerous mission to reach the last unexplored region on Earth. Facing extreme weather, treacherous terrain, and their own limitations, they must work together to survive and make groundbreaking discoveries.",
+    "trailerUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "genres": ["Adventure", "Drama", "Action"],
+    "moods": ["adventurous", "thriller"]
+  }
+]

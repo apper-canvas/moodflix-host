@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import react-toastify CSS */
+@import 'react-toastify/dist/ReactToastify.css';
+
+/* Ensure scrollbars are visible */
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  min-height: 100vh;
+  background-color: #0F172A;
+  color: #f1f5f9;
+}
+
+/* Prevent horizontal overflow */
+* {
+  max-width: 100%;
+}
+
+/* Main content areas must allow scroll */
+.main-content {
+  overflow-y: auto;
+  height: 100vh;
+}
+
+@layer utilities {
+  /* Only use scrollbar-hide for specific UI elements, never main content */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .mood-gradient-happy {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  }
+  
+  .mood-gradient-sad {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  }
+  
+  .mood-gradient-thriller {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+  }
+  
+  .mood-gradient-romantic {
+    background: linear-gradient(135deg, #ec4899, #be185d);
+  }
+  
+  .mood-gradient-adventurous {
+    background: linear-gradient(135deg, #059669, #047857);
+  }
+  
+  .mood-gradient-nostalgic {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+  
+  .mood-gradient-scary {
+    background: linear-gradient(135deg, #374151, #111827);
+  }
+  
+  .mood-gradient-funny {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+  }
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "theme": "80s Nostalgia Night",
+    "movieIds": ["7", "4"],
+    "date": "2024-01-15",
+    "shareLink": "moodflix.app/night/80s-nostalgia-1704067200"
+  },
+  {
+    "id": "2",
+    "theme": "Thriller Marathon",
+    "movieIds": ["3", "5", "8"],
+    "date": "2024-01-22",
+    "shareLink": "moodflix.app/night/thriller-marathon-1704672000"
+  },
+  {
+    "id": "3",
+    "theme": "Romance & Comedy",
+    "movieIds": ["2", "9", "4"],
+    "date": "2024-02-14",
+    "shareLink": "moodflix.app/night/romance-comedy-1707868800"
+  },
+  {
+    "id": "4",
+    "theme": "Adventure Weekend",
+    "movieIds": ["1", "10"],
+    "date": "2024-02-03",
+    "shareLink": "moodflix.app/night/adventure-weekend-1707004800"
+  }
+]
